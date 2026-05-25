@@ -1,0 +1,22 @@
+## @file
+#  Quanta Platform Package Declaration
+#
+#  SPDX-License-Identifier: BSD-2-Clause-Patent
+##
+
+[Defines]
+  DEC_SPECIFICATION = 0x00010005
+  PACKAGE_NAME      = QuantaPkg
+  PACKAGE_GUID      = C3A7F812-4B5D-4E8F-9A1C-2D3E4F506178
+  PACKAGE_VERSION   = 0.1
+
+[Guids]
+  ## Token Space GUID for QuantaPkg PCDs
+  gQuantaPkgTokenSpaceGuid = {0xC3A7F812, 0x4B5D, 0x4E8F, {0x9A, 0x1C, 0x2D, 0x3E, 0x4F, 0x50, 0x61, 0x78}}
+
+[PcdsFixedAtBuild]
+  ## Board identifier assigned by ODM.
+  gQuantaPkgTokenSpaceGuid.PcdQuantaBoardId|0x0001|UINT16|0x00010001
+
+  ## Firmware version string embedded in SMBIOS Type 128.
+  gQuantaPkgTokenSpaceGuid.PcdQuantaFirmwareVersionString|L"Quanta FW 1.0.0"|VOID*|0x00010002

@@ -1,0 +1,43 @@
+## @file
+#  Quanta Platform DXE Driver
+#
+#  Installs SMBIOS Type 128 OEM record with board ID and firmware version.
+#
+#  SPDX-License-Identifier: BSD-2-Clause-Patent
+##
+
+[Defines]
+  INF_VERSION    = 0x00010005
+  BASE_NAME      = QuantaPlatformDxe
+  FILE_GUID      = A2B3C4D5-E6F7-8901-BCDE-F12345678901
+  MODULE_TYPE    = DXE_DRIVER
+  VERSION_STRING = 1.0
+  ENTRY_POINT    = QuantaPlatformDxeEntryPoint
+
+[Sources]
+  QuantaPlatformDxe.c
+
+[Packages]
+  MdePkg/MdePkg.dec
+  MdeModulePkg/MdeModulePkg.dec
+  QuantaPkg/QuantaPkg.dec
+
+[LibraryClasses]
+  UefiDriverEntryPoint
+  UefiLib
+  BaseLib
+  BaseMemoryLib
+  MemoryAllocationLib
+  DebugLib
+  PcdLib
+  UefiBootServicesTableLib
+
+[Protocols]
+  gEfiSmbiosProtocolGuid    ## CONSUMES
+
+[Pcd]
+  gQuantaPkgTokenSpaceGuid.PcdQuantaBoardId
+  gQuantaPkgTokenSpaceGuid.PcdQuantaFirmwareVersionString
+
+[Depex]
+  gEfiSmbiosProtocolGuid
