@@ -22,14 +22,14 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ~/edk2
-          key: edk2-stable202405-${{ runner.os }}-v1
+          key: edk2-stable202405-${{ runner.os }}-v2
 
       - name: Clone edk2 (edk2-stable202405) + submodules
         if: steps.cache-edk2.outputs.cache-hit != 'true'
         run: |
           git clone --branch edk2-stable202405 --depth=1 \
+            --recurse-submodules --shallow-submodules \
             https://github.com/tianocore/edk2.git ~/edk2
-          git -C ~/edk2 submodule update --init
 
       - name: Build BaseTools
         if: steps.cache-edk2.outputs.cache-hit != 'true'
