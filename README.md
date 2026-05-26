@@ -74,3 +74,28 @@ String table: "<PcdQuantaFirmwareVersionString>\0\0"
 ```
 
 Verify after boot with `dmidecode -t 128` (Linux guest) or `smbiosview -t 128` (UEFI Shell).
+
+## End-to-end verification
+
+### 1. Quanta firmware artifacts built
+![build artifacts](docs/04-quanta-fd-build.png)
+
+### 2. DXE phase: drivers dispatched in order
+Standard SMBIOS DXE driver registers types 1/3/4/16/17/19/32/0 first,
+then **QuantaPlatformDxe** loads and registers **Type 128** to both
+32-bit and 64-bit tables (SMBIOS 3.x dual-table requirement).
+
+![driver loading](docs/01-driver-loading.png)
+
+### 3. OEM SMBIOS Type 128 installed
+Handle assigned by `EFI_SMBIOS_PROTOCOL`, with `BoardId` and `FwVer`
+populated from the OEM PCD declarations.
+
+![type 128 installed](docs/02-driver-installed.png)
+
+### 4. Final SMBIOS table integrity
+`SmbiosMeasurementDxe` walks the published table and confirms **Type 128
+sits before Type 127 (end-of-table)** — proving the OEM record is fully
+integrated and OS-visible.
+
+![final table walk](docs/03-final-table.png)
