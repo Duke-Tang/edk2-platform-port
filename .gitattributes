@@ -1,4 +1,3 @@
-# EDK2 file types — override linguist's bad guesses
 *.c       linguist-language=C
 *.h       linguist-language=C
 *.nasm    linguist-language=Assembly
@@ -9,7 +8,5 @@
 *.dsc     linguist-language=INI
 *.fdf     linguist-language=INI
 *.uni     linguist-detectable=false
-
-# Don't count generated / build artifacts
 Build/    linguist-generated=true
-docs/*.png linguist-generated=true
+docs/*    linguist-generated=true
