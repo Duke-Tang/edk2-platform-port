@@ -29,6 +29,11 @@ if [[ ! -f "${EDK2_DIR}/BaseTools/Source/C/bin/GenFw" ]]; then
   make -C "${EDK2_DIR}/BaseTools" -j"$(nproc)"
 fi
 
+# edksetup.sh → BuildEnv → StoreCurrentConfiguration writes ${CONF_PATH}/BuildEnv.sh.
+# CONF_PATH resolves to ${WORKSPACE}/Conf; that directory must already exist or the
+# shell redirect fails (No such file or directory) before templates are copied.
+mkdir -p "${WORKSPACE}/Conf"
+
 # Clear positional params so edksetup.sh arg-parser doesn't see our TARGET arg.
 # Disable nounset briefly: edksetup.sh tests unset vars via [ -n "$VAR" ] which
 # is safe idiomatically but fails under set -u.
