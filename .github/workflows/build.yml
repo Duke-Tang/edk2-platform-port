@@ -22,14 +22,20 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ~/edk2
-          key: edk2-stable202405-${{ runner.os }}-v2
+          key: edk2-stable202405-${{ runner.os }}-v3
 
       - name: Clone edk2 (edk2-stable202405) + submodules
         if: steps.cache-edk2.outputs.cache-hit != 'true'
         run: |
           git clone --branch edk2-stable202405 --depth=1 \
-            --recurse-submodules --shallow-submodules \
             https://github.com/tianocore/edk2.git ~/edk2
+          # Only init the four submodules required for an X64 OVMF build.
+          # Full (non-shallow) clones so pinned commits are always reachable.
+          git -C ~/edk2 submodule update --init \
+            BaseTools/Source/C/BrotliCompress/brotli \
+            MdeModulePkg/Library/BrotliCustomDecompressLib/brotli \
+            CryptoPkg/Library/OpensslLib/openssl \
+            MdeModulePkg/Universal/RegularExpressionDxe/oniguruma
 
       - name: Build BaseTools
         if: steps.cache-edk2.outputs.cache-hit != 'true'
