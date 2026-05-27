@@ -54,8 +54,9 @@ jobs:
         with:
           name: QuantaPkg-${{ matrix.target }}-X64
           path: |
-            edk2/Build/**/FV/*.fd
-            edk2/Build/**/FV/*.rom
             edk2/Build/**/*.efi
-          if-no-files-found: warn
+            edk2/Build/**/*.fd
+            edk2/Build/**/*.rom
+            edk2/Build/**/*.fv
+            edk2/Build/**/BUILDLOG_*.txt          if-no-files-found: warn
           retention-days: 14
