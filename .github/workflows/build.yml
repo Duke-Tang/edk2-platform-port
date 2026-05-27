@@ -46,7 +46,7 @@ jobs:
           export EDK_TOOLS_PATH=$WORKSPACE/edk2/BaseTools
           cd $WORKSPACE/edk2
           source edksetup.sh BaseTools
-          build -a X64 -t GCC5 -b ${{ matrix.target }} -p $WORKSPACE/edk2-platform-port/QuantaPkg/QuantaPkgX64.dsc
+          build -a X64 -t GCC -b ${{ matrix.target }} -p $WORKSPACE/edk2-platform-port/QuantaPkg/QuantaPkgX64.dsc
 
       - name: Upload firmware artifacts
         if: success()
