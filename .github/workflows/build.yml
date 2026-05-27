@@ -2,51 +2,68 @@ name: Build Quanta Platform Firmware
 
 on:
   push:
+  pull_request:
   workflow_dispatch:
+
+env:
+  EDK2_REF: edk2-stable202605
 
 jobs:
   build:
     runs-on: ubuntu-22.04
+    strategy:
+      fail-fast: false
+      matrix:
+        target: [DEBUG, RELEASE]
 
     steps:
-      - name: Checkout
+      - name: Checkout QuantaPkg platform repo
         uses: actions/checkout@v4
-
-      - name: Install build dependencies
-        run: |
-          sudo apt-get update -qq
-          sudo apt-get install -y gcc nasm acpica-tools python3 uuid-dev
-
-      - name: Cache edk2 + BaseTools
-        id: cache-edk2
-        uses: actions/cache@v4
         with:
-          path: ~/edk2
-          key: edk2-stable202405-${{ runner.os }}-v3
+          path: edk2-platform-port
 
-      - name: Clone edk2 (edk2-stable202405) + submodules
-        if: steps.cache-edk2.outputs.cache-hit != 'true'
+      - name: Checkout edk2
+        uses: actions/checkout@v4
+        with:
+          repository: tianocore/edk2
+          ref: ${{ env.EDK2_REF }}
+          submodules: recursive
+          path: edk2
+
+      - name: Install dependencies
         run: |
-          git clone --branch edk2-stable202405 --depth=1 \
-            https://github.com/tianocore/edk2.git ~/edk2
-          # Only init the four submodules required for an X64 OVMF build.
-          # Full (non-shallow) clones so pinned commits are always reachable.
-          git -C ~/edk2 submodule update --init \
-            BaseTools/Source/C/BrotliCompress/brotli \
-            MdeModulePkg/Library/BrotliCustomDecompressLib/brotli \
-            CryptoPkg/Library/OpensslLib/openssl \
-            MdeModulePkg/Universal/RegularExpressionDxe/oniguruma
+          sudo apt-get update
+          sudo apt-get install -y \
+            build-essential uuid-dev iasl nasm \
+            python3 python3-pip \
+            gcc g++ make git acpica-tools
 
       - name: Build BaseTools
-        if: steps.cache-edk2.outputs.cache-hit != 'true'
-        run: make -C ~/edk2/BaseTools -j$(nproc)
+        working-directory: edk2
+        run: make -C BaseTools
 
-      - name: Build firmware (DEBUG)
-        run: bash build.sh DEBUG
+      - name: Build QuantaPkg (${{ matrix.target }})
+        run: |
+          export WORKSPACE=$GITHUB_WORKSPACE
+          export PACKAGES_PATH=$WORKSPACE/edk2:$WORKSPACE/edk2-platform-port
+          export EDK_TOOLS_PATH=$WORKSPACE/edk2/BaseTools
+          cd $WORKSPACE/edk2
+          source edksetup.sh BaseTools
 
-      - name: Upload firmware artifact
+          build \
+            -a X64 \
+            -t GCC5 \
+            -b ${{ matrix.target }} \
+            -p $WORKSPACE/edk2-platform-port/QuantaPkg/QuantaPkgX64.dsc
+
+      - name: Upload firmware artifacts
+        if: success()
         uses: actions/upload-artifact@v4
         with:
-          name: QUANTA-firmware-DEBUG
-          path: Build/QuantaX64/DEBUG_GCC/FV/QUANTA.fd
-          if-no-files-found: error
+          name: QuantaPkg-${{ matrix.target }}-X64
+          path: |
+            edk2/Build/**/FV/*.fd
+            edk2/Build/**/FV/*.rom
+            edk2/Build/**/*.efi
+          if-no-files-found: warn
+          retention-days: 14
